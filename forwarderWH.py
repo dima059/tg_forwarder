@@ -14,6 +14,8 @@ WEBHOOK_PATH = "/webhook"
 HOST = "0.0.0.0"
 PORT = int(os.getenv('PORT', 8080))
 
+SECRET_TOKEN = BOT_TOKEN.split(':')[1] if BOT_TOKEN and ':' in BOT_TOKEN else None
+
 # === НАСТРОЙКИ ПРОКСИ ===
 PROXY_URL = os.environ.get("PROXY_URL")  # HTTP прокси
 # или
@@ -75,7 +77,8 @@ async def on_startup(bot: Bot):
     """Установка webhook при запуске"""
     await bot.set_webhook(
         WEBHOOK_URL,
-        allowed_updates=dp.resolve_used_update_types()
+        allowed_updates=dp.resolve_used_update_types(),
+        secret_token=SECRET_TOKEN
     )
     logger.info(f"✅ Webhook установлен: {WEBHOOK_URL}")
 
@@ -105,7 +108,7 @@ async def main():
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=dp,
         bot=bot,
-        secret_token=BOT_TOKEN.split(':')[1]  # Для безопасности
+        secret_token=SECRET_TOKEN  # Для безопасности
     )
     webhook_requests_handler.register(app, path=WEBHOOK_PATH)
     
