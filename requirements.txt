@@ -2,3 +2,4 @@ asyncio
 logging
 aiogram
 aiohttp
+aiohttp_socks
