@@ -55,6 +55,7 @@ async def cmd_clear(message: Message):
 
 @dp.channel_post()
 async def forward_from_channel(message: Message):
+    global processed_messages
     logger.info(f"📨 Пост из канала: {message.message_id}, chat_id={message.chat.id}")
     
     if message.chat.id != SOURCE_CHANNEL_ID:
@@ -75,26 +76,6 @@ async def forward_from_channel(message: Message):
         logger.info(f"✅ Сообщение {message.message_id} переслано")
     except Exception as e:
         logger.error(f"❌ Ошибка при пересылке: {e}", exc_info=True)
-
-@dp.message(F.chat.id == int(SOURCE_CHANNEL_ID))
-async def forward_from_channel(message: Message):
-    logger.info(f"Пост из канала: {message.text}")
-    if message.message_id in processed_messages:
-        logger.info(f"Сообщение {message.message_id} уже обработано")
-        return
-
-    try:
-        # Копирование сообщения с сохранением контента
-        await message.copy_to(chat_id=TARGET_GROUP_ID)
-        processed_messages.add(message.message_id)
-
-        # Ограничение размера хранилища
-        if len(processed_messages) > MAX_STORED_IDS:
-            processed_messages = set(list(processed_messages)[-MAX_STORED_IDS:])
-
-        logger.info(f"Сообщение {message.message_id} переслано")
-    except Exception as e:
-        logger.error(f"Ошибка при пересылке: {e}")
 
 async def on_startup(bot: Bot):
     """Установка webhook при запуске"""
