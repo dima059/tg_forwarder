@@ -22,8 +22,8 @@ PROXY_URL = os.environ.get("PROXY_URL")  # HTTP прокси
 # PROXY_URL = os.environ.get("PROXY_URL_SOCKS5")  # SOCKS5 прокси
 # ========================
 
-SOURCE_CHANNEL_ID = -1001963121490 #1635
-TARGET_GROUP_ID = '-1001878767270' #0451
+SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID")) #1635
+TARGET_GROUP_ID = os.environ.get("TARGET_GROUP_ID") #0451
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -88,7 +88,16 @@ async def on_shutdown(bot: Bot):
     logger.info("✅ Webhook удалён")
 
 async def main():
-    logger.info("Запуск бота...")
+    logger.info(f"🚀 Запуск бота (Webhook mode) на порту {PORT}...")
+
+    # Валидация обязательных переменных
+    if not BOT_TOKEN:
+        logger.error("❌ BOT_TOKEN не установлен!")
+        return
+    
+    if not WEBHOOK_URL:
+        logger.error("❌ WEBHOOK_URL не установлен!")
+        return
 
     # Создаём сессию (прокси нужен только для исходящих запросов)
     session = AiohttpSession(
