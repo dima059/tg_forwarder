@@ -22,8 +22,8 @@ PROXY_URL = os.environ.get("PROXY_URL")  # HTTP прокси
 # PROXY_URL = os.environ.get("PROXY_URL_SOCKS5")  # SOCKS5 прокси
 # ========================
 
-SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID"))
-TARGET_GROUP_ID = int(os.environ.get("TARGET_GROUP_ID"))
+SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID")) #1635
+TARGET_GROUP_ID = int(os.environ.get("TARGET_GROUP_ID")) #0451
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,6 +52,29 @@ async def cmd_clear(message: Message):
     global processed_messages
     processed_messages.clear()
     await message.answer("✅ История обработанных сообщений очищена.")
+
+@dp.channel_post()
+async def forward_from_channel(message: Message):
+    logger.info(f"📨 Пост из канала: {message.message_id}, chat_id={message.chat.id}")
+    
+    if message.chat.id != SOURCE_CHANNEL_ID:
+        logger.warning(f"⚠️ Пост из другого канала: {message.chat.id}")
+        return
+
+    if message.message_id in processed_messages:
+        logger.info(f"⚠️ Сообщение {message.message_id} уже обработано")
+        return
+
+    try:
+        await message.copy_to(chat_id=TARGET_GROUP_ID)
+        processed_messages.add(message.message_id)
+
+        if len(processed_messages) > MAX_STORED_IDS:
+            processed_messages = set(list(processed_messages)[-MAX_STORED_IDS:])
+
+        logger.info(f"✅ Сообщение {message.message_id} переслано")
+    except Exception as e:
+        logger.error(f"❌ Ошибка при пересылке: {e}", exc_info=True)
 
 @dp.message(F.chat.id == int(SOURCE_CHANNEL_ID))
 async def forward_from_channel(message: Message):
