@@ -22,8 +22,8 @@ PROXY_URL = os.environ.get("PROXY_URL")  # HTTP прокси
 # PROXY_URL = os.environ.get("PROXY_URL_SOCKS5")  # SOCKS5 прокси
 # ========================
 
-SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID")) #1635
-TARGET_GROUP_ID = os.environ.get("TARGET_GROUP_ID") #0451
+SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID"))
+TARGET_GROUP_ID = int(os.environ.get("TARGET_GROUP_ID"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
