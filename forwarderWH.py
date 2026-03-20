@@ -16,12 +16,6 @@ PORT = int(os.getenv('PORT', 8080))
 
 SECRET_TOKEN = BOT_TOKEN.split(':')[1] if BOT_TOKEN and ':' in BOT_TOKEN else None
 
-# === НАСТРОЙКИ ПРОКСИ ===
-PROXY_URL = os.environ.get("PROXY_URL")  # HTTP прокси
-# или
-# PROXY_URL = os.environ.get("PROXY_URL_SOCKS5")  # SOCKS5 прокси
-# ========================
-
 SOURCE_CHANNEL_ID = int(os.environ.get("SOURCE_CHANNEL_ID")) #1635
 TARGET_GROUP_ID = int(os.environ.get("TARGET_GROUP_ID")) #0451
 
@@ -104,10 +98,7 @@ async def main():
         return
 
     # Создаём сессию (прокси нужен только для исходящих запросов)
-    session = AiohttpSession(
-        proxy=PROXY_URL if PROXY_URL else None,
-        timeout=60
-    )
+    session = AiohttpSession(timeout=30)
     bot = Bot(token=BOT_TOKEN, session=session)
     
     # Регистрируем хуки старта/остановки
@@ -121,7 +112,7 @@ async def main():
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=dp,
         bot=bot,
-        secret_token=SECRET_TOKEN  # Для безопасности
+        secret_token=SECRET_TOKEN
     )
     webhook_requests_handler.register(app, path=WEBHOOK_PATH)
     
